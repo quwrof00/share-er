@@ -8,7 +8,13 @@ import { deletePost } from '@/app/actions/delete-post'
 import { addComment } from '@/app/actions/comment/add-comment'
 import { deleteComment } from '@/app/actions/comment/delete-comment'
 
-export default async function PostDetailPage({ params }: { params: { id: string } }) {
+type Props = {
+  params: {
+    id: string
+  }
+}
+
+export default async function PostPage({ params }: Props) {
   const cookieStore = await cookies()
 
   const supabase = createServerClient(
