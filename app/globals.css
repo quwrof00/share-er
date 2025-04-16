@@ -20,7 +20,69 @@
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: #ffffff !important;
+  color: #171717 !important;
+}
+
+/* HTML: <div class="Deleteloader"></div> */
+.Deleteloader {
+  width: fit-content;
+  font-weight: bold;
+  font-family: monospace;
+  font-size: 30px;
+  overflow: hidden;
+}
+.Deleteloader::before {
+  content: "Deleting";
+  color: #0000;
+  text-shadow: 0 0 0 #000,10ch 0 0 #fff,20ch 0 0 #000;
+  background: linear-gradient(90deg,#0000 calc(100%/3),#000 0 calc(2*100%/3),#0000 0) left/300% 100%;
+  animation: l23 2s infinite;
+}
+
+@keyframes l23{
+  50% {background-position: center;text-shadow: -10ch 0 0 #000,    0 0 0 #fff,10ch 0 0 #000}
+  100%{background-position: right ;text-shadow: -20ch 0 0 #000,-10ch 0 0 #fff,   0 0 0 #000}
+}
+
+/* HTML: <div class="loader"></div> */
+.Updateloader {
+  width: fit-content;
+  font-weight: bold;
+  font-family: monospace;
+  font-size: 30px;
+  overflow: hidden;
+}
+.Updateloader::before {
+  content: "Updating";
+  color: #0000;
+  text-shadow: 0 0 0 #000,10ch 0 0 #fff,20ch 0 0 #000;
+  background: linear-gradient(90deg,#0000 calc(100%/3),#000 0 calc(2*100%/3),#0000 0) left/300% 100%;
+  animation: l23 2s infinite;
+}
+
+@keyframes l23{
+  50% {background-position: center;text-shadow: -10ch 0 0 #000,    0 0 0 #fff,10ch 0 0 #000}
+  100%{background-position: right ;text-shadow: -20ch 0 0 #000,-10ch 0 0 #fff,   0 0 0 #000}
+}
+
+/* HTML: <div class="loader"></div> */
+.Createloader {
+  width: fit-content;
+  font-weight: bold;
+  font-family: monospace;
+  font-size: 30px;
+  overflow: hidden;
+}
+.Createloader::before {
+  content: "Creating";
+  color: #0000;
+  text-shadow: 0 0 0 #000,10ch 0 0 #fff,20ch 0 0 #000;
+  background: linear-gradient(90deg,#0000 calc(100%/3),#000 0 calc(2*100%/3),#0000 0) left/300% 100%;
+  animation: l23 2s infinite;
+}
+
+@keyframes l23{
+  50% {background-position: center;text-shadow: -10ch 0 0 #000,    0 0 0 #fff,10ch 0 0 #000}
+  100%{background-position: right ;text-shadow: -20ch 0 0 #000,-10ch 0 0 #fff,   0 0 0 #000}
 }
