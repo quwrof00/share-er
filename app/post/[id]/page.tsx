@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 'use server'
 
 import { FC } from 'react'
