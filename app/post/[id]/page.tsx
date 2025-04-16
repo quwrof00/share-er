@@ -1,5 +1,6 @@
 'use server'
 
+import { FC } from 'react'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { notFound, redirect } from 'next/navigation'
@@ -8,13 +9,13 @@ import { deletePost } from '@/app/actions/delete-post'
 import { addComment } from '@/app/actions/comment/add-comment'
 import { deleteComment } from '@/app/actions/comment/delete-comment'
 
-type Props = {
+interface PageProps {
   params: {
     id: string
   }
 }
 
-export default async function PostPage({ params }: Props) {
+export default async function PostPage({ params }: PageProps) {
   const cookieStore = await cookies()
 
   const supabase = createServerClient(
@@ -29,13 +30,11 @@ export default async function PostPage({ params }: Props) {
     }
   )
 
-  const params2 = await params
-
   // Fetch the post from the database
   const { data: post, error: postError } = await supabase
     .from('posts_with_usernames')
     .select('id, content, created_at, username, user_id, impressions')
-    .eq('id', params2.id)
+    .eq('id', params.id)
     .single()
 
   if (postError || !post) return notFound()
