@@ -31,11 +31,11 @@ export default async function PostPage({ params }: PageProps) {
   )
 
   // Fetch the post from the database
-  const params2 = await params;
+  // const params2 = await params;
   const { data: post, error: postError } = await supabase
     .from('posts_with_usernames')
     .select('id, content, created_at, username, user_id, impressions')
-    .eq('id', params2.id)
+    .eq('id', params.id)
     .single()
 
   if (postError || !post) return notFound()
