@@ -10,12 +10,13 @@ import { addComment } from '@/app/actions/comment/add-comment'
 import { deleteComment } from '@/app/actions/comment/delete-comment'
 
 interface PageProps {
-  params: {
-    id: string
-  }
+  params: Promise<{ id: string }>
 }
 
 export default async function PostPage({ params }: PageProps) {
+  // Await the params to ensure it's resolved
+  const { id } = await params
+
   const cookieStore = await cookies()
 
   const supabase = createServerClient(
@@ -31,11 +32,10 @@ export default async function PostPage({ params }: PageProps) {
   )
 
   // Fetch the post from the database
-  // const params2 = await params;
   const { data: post, error: postError } = await supabase
     .from('posts_with_usernames')
     .select('id, content, created_at, username, user_id, impressions')
-    .eq('id', params.id)
+    .eq('id', id)
     .single()
 
   if (postError || !post) return notFound()
