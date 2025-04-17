@@ -71,8 +71,8 @@ export default async function HomePage() {
         ) : (
           posts.map((post) => (
             <Link key={post.id} href={`/post/${post.id}`} className="block">
-              <div className="border border-gray-700 p-6 rounded-xl shadow-xl bg-gradient-to-r from-gray-700 to-gray-800 hover:bg-gradient-to-l hover:from-gray-800 hover:to-gray-700 transition-all duration-300">
-                <p className="text-white text-lg">{post.content}</p>
+              <div className="border border-gray-700 py-5 px-5 rounded-xl shadow-xl bg-gradient-to-r from-gray-700 to-gray-800 hover:bg-gradient-to-l hover:from-gray-800 hover:to-gray-700 transition-all duration-300 h-25">
+                <p className="text-white text-lg truncate">{post.content}</p>
                 <p className="text-sm text-gray-400 mt-2">
                   Posted by {post.username ?? 'Anonymous'}
                 </p>
