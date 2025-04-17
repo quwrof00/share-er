@@ -2,8 +2,37 @@
 
 import { login, signup } from "./actions"
 import { motion } from "framer-motion"
+import { toast } from "react-hot-toast"
+import { useFormStatus } from "react-dom"
+import { useState } from "react"
 
 export default function LoginPage() {
+  const [isPending, setIsPending] = useState(false)
+
+  async function handleSignup(formData: FormData) {
+    setIsPending(true)
+    const res = await signup(formData)
+    setIsPending(false)
+
+    if (res?.error) {
+      toast.error(res.error)
+    } else {
+      toast.success("Signup successful! Check your email.")
+    }
+  }
+
+  async function handleLogin(formData: FormData) {
+    setIsPending(true)
+    const res = await login(formData)
+    setIsPending(false)
+
+    if (res?.error) {
+      toast.error(res.error)
+    } else {
+      toast.success("Logged in successfully!")
+    }
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-700 px-4">
       <motion.div
@@ -21,7 +50,7 @@ export default function LoginPage() {
           Welcome User!👋
         </motion.h2>
 
-        <form method="post" className="space-y-6">
+        <form action={handleLogin} className="space-y-6">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -67,16 +96,26 @@ export default function LoginPage() {
             className="flex gap-4 pt-2"
           >
             <button
-              formAction={login}
+              type="submit"
               className="w-1/2 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-md transition-all duration-300"
+              disabled={isPending}
             >
-              Log In
+              {isPending ? "Logging in..." : "Log In"}
             </button>
+
             <button
-              formAction={signup}
+              type="button"
+              onClick={async () => {
+                const form = document.querySelector("form") as HTMLFormElement
+                if (form) {
+                  const formData = new FormData(form)
+                  await handleSignup(formData)
+                }
+              }}
               className="w-1/2 py-2 rounded-lg bg-white/10 text-white hover:bg-white/20 font-semibold shadow-md transition-all duration-300"
+              disabled={isPending}
             >
-              Sign Up
+              {isPending ? "Please wait..." : "Sign Up"}
             </button>
           </motion.div>
         </form>

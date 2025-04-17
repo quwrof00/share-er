@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
 
-export async function login(formData: FormData) {
+export async function login(formData: FormData): Promise<{ error?: string; success?: boolean }> {
   const supabase = await createClient()
 
   const data = {
@@ -23,9 +23,11 @@ export async function login(formData: FormData) {
 
     if (error.code === 'email_not_confirmed') {
       // redirect to a “check your inbox” page
-      redirect('/check-your-email')
+      return { error: 'Activate your email' }
     }
-
+    if (error.code == 'invalid_credentials'){
+      return { error: 'Invalid credentials'};
+    }
     // other errors
     redirect('/error')
   }
@@ -39,42 +41,45 @@ export async function login(formData: FormData) {
 export async function signup(formData: FormData) {
   const supabase = await createClient()
 
-  const data = {
-    email: formData.get('email') as string,
-    password: formData.get('password') as string,
-  }
+  const email = formData.get('email') as string
+  const password = formData.get('password') as string
 
-  if (!data.email || !data.password) {
-    redirect('/error')
+  if (!email || !password) {
+    return { error: 'Email and password are required.' }
   }
 
   const { data: userData, error } = await supabase.auth.signUp({
-    email: data.email,
-    password: data.password,
+    email,
+    password,
   })
 
-  if (error || !userData?.user) {
-    console.error('Signup error:', error)
-    redirect('/error')
+  // Already signed up and confirmed
+  if (error?.code === 'user_already_exists') {
+    return { error: 'Email is already registered. Try logging in instead.' }
   }
 
-  // Insert into public.users with default username
+  // No error, but user is not confirmed
+  if (!error && userData?.user && !userData.user?.confirmation_sent_at) {
+    return { error: 'Confirmation email was already sent. Check your inbox.' }
+  }
+
+  if (error) {
+    return { error: error.message }
+  }
+
   const { error: insertError } = await supabase.from('users').insert({
-    id: userData.user.id,
-    username: 'new_user_' + Date.now(), // default username
+    id: userData.user?.id,
+    username: 'new_user_' + Date.now(),
     created_at: new Date().toISOString(),
   })
 
   if (insertError) {
-    console.error('Failed to insert user into public.users:', insertError)
-    redirect('/error')
+    return { error: 'Failed to set up user profile.' }
   }
 
-  console.log('User signed up:', userData)
-
-  revalidatePath('/')
-  redirect('/')
+  return { success: true }
 }
+
 
 
   

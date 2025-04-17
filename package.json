@@ -15,7 +15,8 @@
     "framer-motion": "^12.7.3",
     "next": "15.2.4",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "react-hot-toast": "^2.5.2"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
