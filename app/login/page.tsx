@@ -3,11 +3,13 @@
 import { login, signup } from "./actions"
 import { motion } from "framer-motion"
 import { toast } from "react-hot-toast"
-import { useFormStatus } from "react-dom"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useState } from "react"
 
 export default function LoginPage() {
   const [isPending, setIsPending] = useState(false)
+  const router = useRouter()
+  const searchParams = useSearchParams()
 
   async function handleSignup(formData: FormData) {
     setIsPending(true)
@@ -30,6 +32,8 @@ export default function LoginPage() {
       toast.error(res.error)
     } else {
       toast.success("Logged in successfully!")
+      const redirectTo = searchParams.get("redirectTo") || "/"
+      router.push(redirectTo)
     }
   }
 
