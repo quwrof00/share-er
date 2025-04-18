@@ -1,9 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Loader2 } from 'lucide-react' // or any spinner icon from your icon lib
+import { Loader2 } from 'lucide-react'
+import clsx from 'clsx'
 
 export default function PostList({ posts }: { posts: any[] }) {
   const [loadingPostId, setLoadingPostId] = useState<string | null>(null)
@@ -11,7 +11,9 @@ export default function PostList({ posts }: { posts: any[] }) {
 
   const handleClick = (postId: string) => {
     setLoadingPostId(postId)
-    router.push(`/post/${postId}`)
+    setTimeout(() => {
+      router.push(`/post/${postId}`)
+    }, 200) // give animation a tiny moment before routing
   }
 
   return (
@@ -19,25 +21,37 @@ export default function PostList({ posts }: { posts: any[] }) {
       {posts.length === 0 ? (
         <p className="text-center text-gray-500 text-xl">No posts yet.</p>
       ) : (
-        posts.map((post) => (
-          <div
-            key={post.id}
-            onClick={() => handleClick(post.id)}
-            className="cursor-pointer"
-          >
-            <div className="border border-gray-700 py-5 px-5 rounded-xl shadow-xl bg-gradient-to-r from-gray-700 to-gray-800 hover:bg-gradient-to-l hover:from-gray-800 hover:to-gray-700 transition-all duration-300 h-25 flex justify-between items-center">
-              <div>
-                <p className="text-white text-lg truncate">{post.content}</p>
-                <p className="text-sm text-gray-400 mt-2">
-                  Posted by {post.username ?? 'Anonymous'}
-                </p>
+        posts.map((post) => {
+          const isLoading = loadingPostId === post.id
+
+          return (
+            <div
+              key={post.id}
+              onClick={() => handleClick(post.id)}
+              className="cursor-pointer"
+            >
+              <div
+                className={clsx(
+                  "border border-gray-700 min-h-[110px] py-5 px-5 rounded-xl shadow-xl bg-gradient-to-r from-gray-700 to-gray-800 transition-all duration-300 flex justify-between items-start gap-4 transform",
+                  "hover:scale-105 hover:shadow-2xl hover:bg-gradient-to-bl",
+                  isLoading && "animate-pulse translate-x-2 opacity-80"
+                )}
+              >
+                <div className="flex-1">
+                  <p className="text-white text-lg line-clamp-2 break-words">
+                    {post.content}
+                  </p>
+                  <p className="text-sm text-gray-400 mt-2">
+                    Posted by <span className='text-white'>{post.username ?? 'Anonymous'}</span>
+                  </p>
+                </div>
+                {isLoading && (
+                  <Loader2 className="animate-spin text-white w-5 h-5 mt-1" />
+                )}
               </div>
-              {loadingPostId === post.id && (
-                <Loader2 className="animate-spin text-white ml-4 w-5 h-5" />
-              )}
             </div>
-          </div>
-        ))
+          )
+        })
       )}
     </>
   )
