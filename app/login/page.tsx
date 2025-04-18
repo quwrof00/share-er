@@ -3,16 +3,15 @@
 import { login, signup } from "./actions"
 import { motion } from "framer-motion"
 import { toast } from "react-hot-toast"
-import { useFormStatus } from "react-dom"
 import { useState } from "react"
 
 export default function LoginPage() {
-  const [isPending, setIsPending] = useState(false)
+  const [loadingAction, setLoadingAction] = useState<'login' | 'signup' | null>(null)
 
   async function handleSignup(formData: FormData) {
-    setIsPending(true)
+    setLoadingAction('signup')
     const res = await signup(formData)
-    setIsPending(false)
+    setLoadingAction(null)
 
     if (res?.error) {
       toast.error(res.error)
@@ -22,9 +21,9 @@ export default function LoginPage() {
   }
 
   async function handleLogin(formData: FormData) {
-    setIsPending(true)
+    setLoadingAction('login')
     const res = await login(formData)
-    setIsPending(false)
+    setLoadingAction(null)
 
     if (res?.error) {
       toast.error(res.error)
@@ -98,9 +97,9 @@ export default function LoginPage() {
             <button
               type="submit"
               className="w-1/2 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-md transition-all duration-300"
-              disabled={isPending}
+              disabled={loadingAction !== null}
             >
-              {isPending ? "Logging in..." : "Log In"}
+              {loadingAction === 'login' ? "Logging in..." : "Log In"}
             </button>
 
             <button
@@ -113,9 +112,9 @@ export default function LoginPage() {
                 }
               }}
               className="w-1/2 py-2 rounded-lg bg-white/10 text-white hover:bg-white/20 font-semibold shadow-md transition-all duration-300"
-              disabled={isPending}
+              disabled={loadingAction !== null}
             >
-              {isPending ? "Please wait..." : "Sign Up"}
+              {loadingAction === 'signup' ? "Signing up..." : "Sign Up"}
             </button>
           </motion.div>
         </form>
