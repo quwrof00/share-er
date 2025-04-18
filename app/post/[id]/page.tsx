@@ -8,6 +8,7 @@ import { updatePost } from '@/app/actions/update-post'
 import { deletePost } from '@/app/actions/delete-post'
 import { addComment } from '@/app/actions/comment/add-comment'
 import { deleteComment } from '@/app/actions/comment/delete-comment'
+import { PostActions } from '@/components/post-actions'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -79,35 +80,9 @@ export default async function PostPage({ params }: PageProps) {
           </h1>
 
           {isAuthor ? (
-            <>
-              <form action={updatePost} className="space-y-4 w-full">
-                <input type="hidden" name="id" value={post.id} />
-                <textarea
-                  name="content"
-                  defaultValue={post.content}
-                  className="w-full h-52 p-6 text-xl border rounded-lg bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-blue-600"
-                />
-                <div className="flex justify-end mt-2">
-                  <button
-                    type="submit"
-                    className="bg-blue-600 text-white px-6 py-2 rounded-lg shadow-lg hover:scale-105 transition duration-300"
-                  >
-                    Save Changes
-                  </button>
-                </div>
-              </form>
+  <PostActions postId={post.id} defaultContent={post.content} />
+) : (
 
-              <form action={deletePost} className="mt-4 flex justify-end">
-                <input type="hidden" name="id" value={post.id} />
-                <button
-                  type="submit"
-                  className="text-red-600 text-base font-medium hover:text-red-700 transition"
-                >
-                  Delete Post
-                </button>
-              </form>
-            </>
-          ) : (
             <>
               <p className="text-2xl sm:text-3xl leading-relaxed text-gray-100">
                 {post.content}
