@@ -10,7 +10,7 @@ export default function Navbar({ user, profile, logout }: { user: any, profile: 
           Share-er
         </Link>
 
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-4 sm:gap-6">
           {user && (
             <Link
               href="/post/new"
@@ -28,10 +28,10 @@ export default function Navbar({ user, profile, logout }: { user: any, profile: 
               >
                 Profile
               </Link>
-              <form action="/logout" method="post">
+              <form action="/logout" method="post" className="ml-1">
                 <button
                   formAction={logout}
-                  className="text-red-500 hover:text-red-600 font-medium"
+                  className="text-red-500 hover:text-red-600 font-medium whitespace-nowrap"
                 >
                   Logout ({profile?.username ?? 'Unknown'})
                 </button>
