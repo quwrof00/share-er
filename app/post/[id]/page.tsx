@@ -4,20 +4,17 @@ import { FC } from 'react'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { notFound, redirect } from 'next/navigation'
-import { updatePost } from '@/app/actions/update-post'
-import { deletePost } from '@/app/actions/delete-post'
-import { addComment } from '@/app/actions/comment/add-comment'
-import { deleteComment } from '@/app/actions/comment/delete-comment'
+import { Eye } from 'lucide-react'
 import { PostActions } from '@/components/post-actions'
+import { CommentForm } from '@/components/comment-form'
+import { deleteComment } from '@/app/actions/comment/delete-comment'
 
 interface PageProps {
   params: Promise<{ id: string }>
 }
 
 export default async function PostPage({ params }: PageProps) {
-  // Await the params to ensure it's resolved
   const { id } = await params
-
   const cookieStore = await cookies()
 
   const supabase = createServerClient(
@@ -32,7 +29,6 @@ export default async function PostPage({ params }: PageProps) {
     }
   )
 
-  // Fetch the post from the database
   const { data: post, error: postError } = await supabase
     .from('posts_with_usernames')
     .select('id, content, created_at, username, user_id, impressions')
@@ -41,24 +37,17 @@ export default async function PostPage({ params }: PageProps) {
 
   if (postError || !post) return notFound()
 
-  // Update the impressions of the post
   await supabase
     .from('posts')
     .update({ impressions: (post.impressions ?? 0) + 1 })
     .eq('id', post.id)
 
-  // Fetch comments for the specific post
   const { data: comments, error: commentsError } = await supabase
     .from('comments_with_usernames')
     .select('id, content, created_at, user_id, post_id, username')
     .eq('post_id', post.id)
     .order('created_at', { ascending: false })
 
-  if (commentsError) {
-    console.error('Error fetching comments:', commentsError)
-  }
-
-  // Fetch logged-in user data
   const {
     data: { user: loggedInUser },
     error: userError,
@@ -71,93 +60,97 @@ export default async function PostPage({ params }: PageProps) {
   const isAuthor = post.user_id === loggedInUser.id
 
   return (
-    <div className="bg-gray-900 min-h-screen text-white p-6">
-      <div className="max-w-4xl mx-auto mt-10 space-y-10">
+    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-3xl mx-auto">
         {/* Post Header */}
-        <div className="flex flex-col gap-4 mb-8">
-          <h1 className="text-5xl font-bold text-white">
-            {post.username}'s Post
+        <div className="mb-12">
+          <h1 className="text-4xl sm:text-5xl font-bold text-white tracking-tight">
+            {post.username}&apos;s Post
           </h1>
+          <div className="mt-4 flex items-center gap-4 text-sm text-gray-400">
+            <span>By {post.username}</span>
+            <span>•</span>
+            <span>{new Date(post.created_at).toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            })}</span>
+            <div className="flex items-center gap-1">
+              <Eye className="w-4 h-4 text-indigo-400" />
+              <span>{(post.impressions ?? 0) + 1} views</span>
+            </div>
+          </div>
+        </div>
 
+        {/* Post Content */}
+        <div className="bg-gray-900 border border-gray-700 rounded-2xl p-6 shadow-lg mb-8">
           {isAuthor ? (
-  <PostActions postId={post.id} defaultContent={post.content} />
-) : (
-
-            <>
-              <p className="text-2xl sm:text-3xl leading-relaxed text-gray-100">
-                {post.content}
-              </p>
-              <p className="text-sm text-gray-400 mt-2">
-                By {post.username} •{' '}
-                {new Date(post.created_at).toLocaleString()}
-              </p>
-            </>
+            <PostActions postId={post.id} defaultContent={post.content} />
+          ) : (
+            <p className="text-xl sm:text-2xl text-gray-100 leading-relaxed">
+              {post.content}
+            </p>
           )}
         </div>
 
-        {/* Post Impressions */}
-        <p className="text-xs text-gray-500 mt-2">
-          👁️ {post.impressions + 1} views
-        </p>
-
         {/* Comments Section */}
-        <div className="bg-gray-800 p-6 rounded-xl mt-8">
-          <h2 className="text-xl text-gray-200 mb-4">Comments</h2>
-          <form action={addComment} className="space-y-4">
-            <input type="hidden" name="postId" value={post.id} />
-            <textarea
-              name="content"
-              placeholder="Write a comment..."
-              className="w-full h-20 p-3 border rounded-lg bg-gray-700 text-white text-base focus:outline-none focus:ring-2 focus:ring-blue-600"
-              required
-            />
-            <button
-              type="submit"
-              className="bg-blue-500 text-white px-5 py-2 rounded-lg shadow hover:scale-105 transition duration-300 text-sm"
-            >
-              Comment
-            </button>
-          </form>
+        <div className="bg-gray-900 border border-gray-700 rounded-2xl p-6 shadow-lg">
+          <h2 className="text-2xl font-semibold text-white mb-6">Comments</h2>
 
-          {/* Comments Loading Spinner */}
-          {!comments && (
-            <div className="flex justify-center mt-4">
-              <div className="animate-spin border-t-4 border-blue-600 rounded-full w-10 h-10"></div>
+          <CommentForm postId={post.id} />
+
+          {!comments ? (
+            <div className="flex justify-center py-8">
+              <div className="animate-spin border-t-4 border-indigo-500 rounded-full w-12 h-12"></div>
+            </div>
+          ) : comments.length === 0 ? (
+            <p className="text-center text-gray-400 text-lg font-light italic py-8">
+              No comments yet. Be the first to share your thoughts!
+            </p>
+          ) : (
+            <div className="mt-8 space-y-4">
+              {comments.map((comment) => {
+                const isCommentAuthor = comment.user_id === loggedInUser.id
+
+                return (
+                  <div
+                    key={comment.id}
+                    className="bg-gray-800 border border-gray-700 p-4 rounded-xl shadow-sm hover:bg-gray-750 transition-colors duration-200"
+                  >
+                    <p className="text-gray-100 text-base leading-relaxed">{comment.content}</p>
+                    <div className="mt-2 flex items-center justify-between">
+                      <p className="text-sm text-gray-400">
+                        By{' '}
+                        <span className="text-indigo-400 font-semibold">
+                          {comment.username || 'Anonymous'}
+                        </span>{' '}
+                        •{' '}
+                        {new Date(comment.created_at).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </p>
+                      {isCommentAuthor && (
+                        <form action={deleteComment}>
+                          <input type="hidden" name="id" value={comment.id} />
+                          <input type="hidden" name="postId" value={post.id} />
+                          <button
+                            type="submit"
+                            className="text-red-400 text-sm font-medium hover:text-red-300 transition-colors"
+                          >
+                            Delete
+                          </button>
+                        </form>
+                      )}
+                    </div>
+                  </div>
+                )
+              })}
             </div>
           )}
-
-          {/* Render Comments */}
-          <div className="mt-6 space-y-3">
-            {comments?.map((comment) => {
-              const isCommentAuthor = comment.user_id === loggedInUser.id
-
-              return (
-                <div
-                  key={comment.id}
-                  className="bg-gray-700 p-3 rounded-lg text-sm shadow-sm"
-                >
-                  <p className="text-gray-100">{comment.content}</p>
-                  <p className="text-xs text-gray-400 mt-1">
-                    By {comment.username || 'Anonymous'} •{' '}
-                    {new Date(comment.created_at).toLocaleString()}
-                  </p>
-
-                  {isCommentAuthor && (
-                    <form action={deleteComment} className="mt-1">
-                      <input type="hidden" name="id" value={comment.id} />
-                      <input type="hidden" name="postId" value={post.id} />
-                      <button
-                        type="submit"
-                        className="text-red-500 text-xs hover:underline"
-                      >
-                        Delete
-                      </button>
-                    </form>
-                  )}
-                </div>
-              )
-            })}
-          </div>
         </div>
       </div>
     </div>
