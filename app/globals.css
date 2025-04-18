@@ -8,7 +8,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: 'Gill Sans', sans-serif; /* Set primary font to Gill Sans */
   --font-mono: var(--font-geist-mono);
 }
 
@@ -22,6 +22,7 @@
 body {
   background: #ffffff !important;
   color: #171717 !important;
+  font-family: 'Gill Sans', sans-serif; /* Apply Gill Sans */
 }
 
 /* HTML: <div class="Deleteloader"></div> */
