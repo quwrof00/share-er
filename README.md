@@ -29,7 +29,7 @@ Setup:
 
 Clone the repo:
 
-    git clone https://github.com/yourusername/your-repo-name.git
+    git clone https://github.com/quwrof00/share-er
     cd your-repo-name
 
 Install dependencies:
