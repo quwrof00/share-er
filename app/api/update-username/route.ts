@@ -14,12 +14,11 @@ export async function POST(req: Request) {
     console.error('User not found or error retrieving user:', userError)
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
-
-  // Log user id to confirm it's being retrieved
+  
   console.log('User ID:', user.id)
 
   const { data, error } = await supabase
-    .from('public.users') // Assuming 'public.users' is the correct table
+    .from('public.users') 
     .update({ username })
     .eq('id', user.id)
     .select()  // Select the updated row to check if the update was successful
